@@ -1,0 +1,464 @@
+{
+  "info": {
+    "name": "Trinity Academy Faculty Tracker API",
+    "description": "Complete API collection for testing the Faculty Performance Tracker backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login - Student",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "role",
+                  "value": "student",
+                  "type": "text"
+                },
+                {
+                  "key": "identifier",
+                  "value": "rahul.d@student.trinity.edu",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "student123",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost/backend/login.php",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["backend", "login.php"]
+            }
+          }
+        },
+        {
+          "name": "Login - Faculty",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "role",
+                  "value": "faculty",
+                  "type": "text"
+                },
+                {
+                  "key": "identifier",
+                  "value": "amit.sharma@trinity.edu",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "faculty123",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost/backend/login.php",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["backend", "login.php"]
+            }
+          }
+        },
+        {
+          "name": "Login - HOD",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "role",
+                  "value": "hod",
+                  "type": "text"
+                },
+                {
+                  "key": "identifier",
+                  "value": "hod@trinity.edu",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "hod123",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost/backend/login.php",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["backend", "login.php"]
+            }
+          }
+        },
+        {
+          "name": "Sign Up - Student",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "role",
+                  "value": "student",
+                  "type": "text"
+                },
+                {
+                  "key": "name",
+                  "value": "Test Student",
+                  "type": "text"
+                },
+                {
+                  "key": "email",
+                  "value": "test.student@trinity.edu",
+                  "type": "text"
+                },
+                {
+                  "key": "password",
+                  "value": "test123",
+                  "type": "text"
+                },
+                {
+                  "key": "enrollment_no",
+                  "value": "BE999",
+                  "type": "text"
+                },
+                {
+                  "key": "class",
+                  "value": "BE Computer",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost/backend/signup.php",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["backend", "signup.php"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Faculty",
+      "item": [
+        {
+          "name": "Get All Faculty",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/backend/get_faculty.php",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["backend", "get_faculty.php"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Feedback",
+      "item": [
+        {
+          "name": "Submit Feedback",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "student_id",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "faculty_id",
+                  "value": "3",
+                  "type": "text"
+                },
+                {
+                  "key": "subject",
+                  "value": "Data Structures",
+                  "type": "text"
+                },
+                {
+                  "key": "rating",
+                  "value": "5",
+                  "type": "text"
+                },
+                {
+                  "key": "comments",
+                  "value": "Excellent teaching! Very clear explanations.",
+                  "type": "text"
+                },
+                {
+                  "key": "feedback_date",
+                  "value": "2025-10-31",
+                  "type": "text"
+                },
+                {
+                  "key": "feedback_time",
+                  "value": "10:30:00",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost/backend/submit_feedback.php",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["backend", "submit_feedback.php"]
+            }
+          }
+        },
+        {
+          "name": "Get Feedback - Faculty View",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/backend/get_feedback.php?role=faculty&faculty_id=3",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["backend", "get_feedback.php"],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "faculty"
+                },
+                {
+                  "key": "faculty_id",
+                  "value": "3"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Feedback - Student View",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/backend/get_feedback.php?role=student&student_id=2",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["backend", "get_feedback.php"],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "student"
+                },
+                {
+                  "key": "student_id",
+                  "value": "2"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Feedback - HOD View (All)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/backend/get_feedback.php?role=hod",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["backend", "get_feedback.php"],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "hod"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Complaints",
+      "item": [
+        {
+          "name": "Submit Complaint",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "student_id",
+                  "value": "2",
+                  "type": "text"
+                },
+                {
+                  "key": "faculty_id",
+                  "value": "3",
+                  "type": "text"
+                },
+                {
+                  "key": "description",
+                  "value": "Date: 2025-10-31, Time: 14:00\\nType: Faculty Issues\\nPriority: Medium\\nTitle: Test Complaint\\n\\nThis is a test complaint for API testing.",
+                  "type": "text"
+                },
+                {
+                  "key": "complaint_date",
+                  "value": "2025-10-31",
+                  "type": "text"
+                },
+                {
+                  "key": "complaint_time",
+                  "value": "14:00:00",
+                  "type": "text"
+                }
+              ]
+            },
+            "url": {
+              "raw": "http://localhost/backend/submit_complaint.php",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["backend", "submit_complaint.php"]
+            }
+          }
+        },
+        {
+          "name": "Get Complaints - Faculty View",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/backend/get_complaints.php?role=faculty&faculty_id=3",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["backend", "get_complaints.php"],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "faculty"
+                },
+                {
+                  "key": "faculty_id",
+                  "value": "3"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Complaints - Student View",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/backend/get_complaints.php?role=student&student_id=2",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["backend", "get_complaints.php"],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "student"
+                },
+                {
+                  "key": "student_id",
+                  "value": "2"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Complaints - HOD View (All)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/backend/get_complaints.php?role=hod",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["backend", "get_complaints.php"],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "hod"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Complaints - Filter by Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/backend/get_complaints.php?role=hod&status=pending",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["backend", "get_complaints.php"],
+              "query": [
+                {
+                  "key": "role",
+                  "value": "hod"
+                },
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Testing",
+      "item": [
+        {
+          "name": "Backend Test & Verification",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost/backend/test_backend.php",
+              "protocol": "http",
+              "host": ["localhost"],
+              "path": ["backend", "test_backend.php"]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost/backend",
+      "type": "string"
+    }
+  ]
+}

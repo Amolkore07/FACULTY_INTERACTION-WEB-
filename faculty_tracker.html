@@ -1,0 +1,2086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Trinity Academy - Faculty Performance Tracker</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-blue: #007BFF;
+      --dark-blue: #003366;
+      --light-blue: #E6F2FF;
+      --accent-gold: #FFD700;
+      --success-green: #28a745;
+      --danger-red: #dc3545;
+      --warning-yellow: #ffc107;
+      --text-dark: #2c3e50;
+      --shadow-sm: 0 2px 10px rgba(0,0,0,0.1);
+      --shadow-md: 0 8px 25px rgba(0,0,0,0.15);
+      --shadow-lg: 0 15px 50px rgba(0,0,0,0.2);
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: var(--text-dark);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* Animated Background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 50%, rgba(0, 123, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 10%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
+      animation: backgroundMove 20s ease-in-out infinite;
+      z-index: -1;
+    }
+
+    @keyframes backgroundMove {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-20px) scale(1.05); }
+    }
+
+    /* Header Styles */
+    header {
+      background: linear-gradient(135deg, rgba(0, 51, 102, 0.95), rgba(0, 123, 255, 0.95));
+      backdrop-filter: blur(10px);
+      color: white;
+      padding: 40px 30px;
+      text-align: center;
+      box-shadow: var(--shadow-lg);
+      border-bottom: 3px solid var(--accent-gold);
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+      animation: headerGlow 10s ease-in-out infinite;
+    }
+
+    @keyframes headerGlow {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      50% { transform: translate(-10%, -10%) scale(1.1); }
+    }
+
+    .college-name {
+      font-size: 1.5em;
+      color: var(--accent-gold);
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+      animation: slideDown 0.8s ease-out;
+      position: relative;
+      z-index: 1;
+    }
+
+    .institute-name {
+      font-size: 2em;
+      color: #FFFFFF;
+      font-weight: 800;
+      margin-bottom: 20px;
+      text-shadow: 3px 3px 10px rgba(0,0,0,0.5);
+      animation: slideDown 1s ease-out;
+      position: relative;
+      z-index: 1;
+    }
+
+    header h1 {
+      font-size: 2.5em;
+      margin-bottom: 15px;
+      text-shadow: 2px 2px 8px rgba(0,0,0,0.4);
+      border-top: 3px solid rgba(255, 255, 255, 0.4);
+      padding-top: 20px;
+      animation: slideDown 1.2s ease-out;
+      position: relative;
+      z-index: 1;
+    }
+
+    header p {
+      color: #ADD8E6;
+      font-size: 1.2em;
+      font-weight: 300;
+      animation: slideDown 1.4s ease-out;
+      position: relative;
+      z-index: 1;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Logout Button */
+    .logout-btn {
+      position: absolute;
+      top: 25px;
+      right: 30px;
+      z-index: 1000;
+      padding: 12px 25px;
+      background: linear-gradient(135deg, var(--danger-red), #c82333);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+    }
+
+    .logout-btn:hover {
+      background: linear-gradient(135deg, #c82333, var(--danger-red));
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 25px rgba(220, 53, 69, 0.6);
+    }
+
+    /* Navigation */
+    nav {
+      display: flex;
+      justify-content: center;
+      background: linear-gradient(135deg, rgba(0, 123, 255, 0.95), rgba(0, 51, 102, 0.95));
+      backdrop-filter: blur(10px);
+      flex-wrap: wrap;
+      box-shadow: var(--shadow-md);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    nav button {
+      background: none;
+      border: none;
+      color: white;
+      padding: 20px 35px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    nav button::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0;
+      height: 4px;
+      background: var(--accent-gold);
+      transition: all 0.4s ease;
+      transform: translateX(-50%);
+      border-radius: 10px 10px 0 0;
+    }
+
+    nav button:hover::before, nav button.active::before {
+      width: 80%;
+    }
+
+    nav button:hover, nav button.active {
+      background: rgba(255, 255, 255, 0.15);
+      color: var(--accent-gold);
+      transform: translateY(-3px);
+    }
+
+    /* Tab Content */
+    .tab-content {
+      display: none;
+      padding: 40px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      margin: 40px auto;
+      max-width: 1400px;
+      border-radius: 30px;
+      box-shadow: var(--shadow-lg);
+      border: 2px solid rgba(0, 123, 255, 0.2);
+      animation: fadeInUp 0.6s ease;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(40px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      color: var(--dark-blue);
+      border-bottom: 4px solid var(--primary-blue);
+      padding-bottom: 15px;
+      margin-bottom: 30px;
+      font-size: 2.5em;
+      font-weight: 700;
+    }
+
+    h3 {
+      color: var(--primary-blue);
+      margin-top: 35px;
+      margin-bottom: 20px;
+      font-size: 1.8em;
+      font-weight: 600;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      font-weight: 600;
+      color: var(--dark-blue);
+      font-size: 0.95em;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    input[type=text], input[type=number], input[type=email], input[type=password], select, textarea {
+      width: 100%;
+      padding: 15px;
+      margin-top: 10px;
+      box-sizing: border-box;
+      border-radius: 12px;
+      border: 2px solid #e0e0e0;
+      background: #f8f9fa;
+      color: var(--text-dark);
+      font-size: 15px;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+    }
+
+    input[type=date], input[type=time] {
+      width: 100%;
+      padding: 15px;
+      margin-top: 10px;
+      box-sizing: border-box;
+      border-radius: 12px;
+      border: 2px solid #e0e0e0;
+      background: #f8f9fa;
+      color: var(--text-dark);
+      font-size: 15px;
+      font-family: 'Poppins', sans-serif;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    input[type=date]:focus, input[type=time]:focus {
+      outline: none;
+      border-color: var(--primary-blue);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    input::placeholder, textarea::placeholder {
+      color: #999;
+      opacity: 0.7;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--primary-blue);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(0, 123, 255, 0.1);
+      transform: translateY(-2px);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+
+    button.submit-btn {
+      margin-top: 25px;
+      background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+      color: white;
+      border: none;
+      padding: 16px 40px;
+      cursor: pointer;
+      border-radius: 50px;
+      font-size: 17px;
+      font-weight: 700;
+      transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
+      width: 100%;
+    }
+
+    button.submit-btn:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 12px 30px rgba(0, 123, 255, 0.6);
+      background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
+    }
+
+    button.submit-btn:active {
+      transform: translateY(-2px) scale(0.98);
+    }
+
+    .feedback-form, .complaint-form {
+      margin-top: 30px;
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      padding: 35px;
+      border-radius: 20px;
+      border: 2px solid rgba(0, 123, 255, 0.2);
+      box-shadow: var(--shadow-md);
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-top: 15px;
+    }
+
+    .radio-option {
+      display: flex;
+      align-items: center;
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      padding: 15px 20px;
+      border-radius: 15px;
+      border: 2px solid #dee2e6;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex: 1;
+      min-width: 180px;
+    }
+
+    .radio-option:hover {
+      border-color: var(--primary-blue);
+      background: linear-gradient(135deg, #e3f2fd, #bbdefb);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+    }
+
+    .radio-option input[type=radio] {
+      margin-right: 12px;
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin-top: 25px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      background: white;
+    }
+
+    th {
+      background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
+      color: white;
+      padding: 18px;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.9em;
+      letter-spacing: 1.5px;
+    }
+
+    td {
+      padding: 16px;
+      border-bottom: 1px solid #e0e0e0;
+      text-align: center;
+      color: var(--text-dark);
+      font-weight: 500;
+    }
+
+    tr {
+      transition: all 0.3s ease;
+    }
+
+    tr:hover {
+      background: linear-gradient(90deg, rgba(0, 123, 255, 0.05), rgba(0, 51, 102, 0.05));
+      transform: scale(1.01);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 50px;
+      color: #999;
+      font-style: italic;
+      font-size: 1.1em;
+    }
+
+    .message {
+      padding: 18px;
+      margin: 20px 0;
+      border-radius: 15px;
+      display: none;
+      font-weight: 600;
+      animation: slideDown 0.4s ease;
+    }
+
+    .message.success {
+      background: linear-gradient(135deg, #d4edda, #c3e6cb);
+      color: #155724;
+      border: 2px solid #c3e6cb;
+    }
+
+    .message.error {
+      background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+      color: #721c24;
+      border: 2px solid #f5c6cb;
+    }
+
+    .message.info {
+      background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+      color: #0c5460;
+      border: 2px solid #bee5eb;
+    }
+
+    /* Login Page */
+    #login-page {
+      max-width: 550px;
+      margin: 80px auto;
+      padding: 50px;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 30px;
+      box-shadow: var(--shadow-lg);
+      border: 2px solid rgba(0, 123, 255, 0.2);
+      animation: fadeInUp 0.8s ease;
+    }
+
+    .login-college-header {
+      text-align: center;
+      margin-bottom: 35px;
+      padding: 25px;
+      background: linear-gradient(135deg, var(--dark-blue), var(--primary-blue));
+      border-radius: 20px;
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+
+    .login-college-header .college-name {
+      font-size: 1.3em;
+      color: var(--accent-gold);
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .login-college-header .institute-name {
+      font-size: 1.6em;
+      color: white;
+      font-weight: 800;
+      margin-bottom: 10px;
+    }
+
+    .login-college-header .system-title {
+      font-size: 1.1em;
+      color: #e3f2fd;
+      font-weight: 400;
+    }
+
+    #login-page h2 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: var(--dark-blue);
+      font-size: 2em;
+      border: none;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 25px;
+      margin: 30px 0;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, #007BFF, #003366);
+      color: white;
+      padding: 25px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 12px 35px rgba(0, 123, 255, 0.3);
+    }
+
+    .stat-number {
+      font-size: 2.5em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .stat-label {
+      font-size: 1.1em;
+      color: #ADD8E6;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* Charts */
+    .charts-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 30px;
+      margin-top: 30px;
+    }
+
+    .chart-wrapper {
+      background: #FFFFFF;
+      padding: 25px;
+      border-radius: 15px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+      border: 1px solid #ADD8E6;
+      transition: transform 0.3s ease;
+      min-height: 350px;
+    }
+
+    .chart-wrapper:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 12px 35px rgba(0, 123, 255, 0.15);
+    }
+
+    .chart-wrapper h4 {
+      color: #003366;
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 1.2em;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: white;
+    }
+
+    .badge-excellent { background: #28a745; }
+    .badge-good { background: #007BFF; }
+    .badge-average { background: #ffc107; }
+    .badge-poor { background: #fd7e14; }
+    .badge-high { background: #dc3545; }
+    .badge-medium { background: #ffc107; }
+    .badge-low { background: #28a745; }
+
+    footer {
+      background: linear-gradient(135deg, #003366, #007BFF);
+      color: #ADD8E6;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+      border-top: 2px solid rgba(255, 255, 255, 0.3);
+      margin-top: 50px;
+    }
+
+    @media (max-width: 768px) {
+      nav { flex-direction: column; }
+      .tab-content { margin: 20px; padding: 20px; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .charts-container { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Login Page -->
+  <div id="login-page">
+    <div class="login-college-header">
+      <div class="college-name">🎓 KJ's Education Institutes</div>
+      <div class="institute-name">Trinity Academy of Engineering</div>
+      <div class="system-title">Faculty Performance & Interaction Tracker</div>
+    </div>
+    
+    <h2 id="auth-title">System Login</h2>
+    <div id="message" class="message"></div>
+    
+    <form id="loginForm">
+      <label for="role">Select Role</label>
+      <select id="role" required>
+        <option value="">Choose your role</option>
+        <option value="student">Student</option>
+        <option value="faculty">Faculty</option>
+        <option value="hod">HOD</option>
+      </select>
+
+      <label for="identifier">Email/Name</label>
+      <input type="text" id="identifier" placeholder="Enter your email or name" required />
+
+      <label for="password">Password</label>
+      <input type="password" id="password" placeholder="Enter your password" required />
+
+      <button type="submit" class="submit-btn">Login</button>
+      
+      <p style="text-align: center; margin-top: 20px; color: #666;">
+        Don't have an account? <a href="#" onclick="toggleSignup()" style="color: #007BFF;">Sign Up</a>
+      </p>
+    </form>
+
+    <!-- Signup Form -->
+    <form id="signupForm" style="display: none;">
+      <div class="message info" style="display: block; margin-bottom: 20px;">
+        ℹ️ <strong>Note:</strong> Only students can register. Faculty and HOD accounts are managed by administration.
+      </div>
+      
+      <label for="signup-role">Select Role</label>
+      <select id="signup-role" required>
+        <option value="">Choose your role</option>
+        <option value="student">Student</option>
+      </select>
+
+      <label for="signup-name">Full Name</label>
+      <input type="text" id="signup-name" placeholder="Enter your full name" required />
+
+      <label for="signup-email">Email Address</label>
+      <input type="email" id="signup-email" placeholder="Enter your email" required />
+
+      <label for="signup-password">Password</label>
+      <input type="password" id="signup-password" placeholder="Create a password (min 6 characters)" required />
+
+      <label for="signup-confirm-password">Confirm Password</label>
+      <input type="password" id="signup-confirm-password" placeholder="Re-enter your password" required />
+
+      <!-- Student specific fields -->
+      <div id="student-fields" style="display: block;">
+        <label for="signup-enrollment">Enrollment Number (Optional)</label>
+        <input type="text" id="signup-enrollment" placeholder="Enter enrollment number" />
+
+        <label for="signup-class">Class (Optional)</label>
+        <input type="text" id="signup-class" placeholder="e.g., BE Computer" />
+      </div>
+
+      <button type="submit" class="submit-btn">Sign Up</button>
+      
+      <p style="text-align: center; margin-top: 20px; color: #666;">
+        Already have an account? <a href="#" onclick="toggleSignup()" style="color: #007BFF;">Login</a>
+      </p>
+    </form>
+  </div>
+
+  <!-- Main Application -->
+  <div id="main-app" style="display: none;">
+    <button class="logout-btn" onclick="logout()">Logout</button>
+
+    <header>
+      <div class="college-name">🎓 KJ's Education Institutes</div>
+      <div class="institute-name">Trinity Academy of Engineering</div>
+      <h1>Faculty Performance & Interaction Tracker</h1>
+      <p id="user-info">Welcome, User!</p>
+    </header>
+
+    <nav id="main-nav"></nav>
+
+    <!-- STUDENT DASHBOARDS -->
+    <div id="student-feedback" class="tab-content">
+      <h2>💬 Student Feedback</h2>
+      <div id="feedback-message" class="message"></div>
+
+      <form id="studentFeedbackForm" class="feedback-form">
+        <label for="facultySelect">Select Faculty</label>
+        <select id="facultySelect" required>
+          <option value="">Select Faculty</option>
+        </select>
+
+        <label for="subjectSelect">Subject</label>
+        <input type="text" id="subjectSelect" placeholder="Enter subject name" required />
+
+        <label for="feedbackDate">📅 Date</label>
+        <input type="date" id="feedbackDate" required />
+
+        <label for="feedbackTime">🕐 Time</label>
+        <input type="time" id="feedbackTime" required />
+
+        <label>1) How clear are your basic concepts?</label>
+        <textarea id="q1" rows="2" required></textarea>
+
+        <label>2) How well did you understand the concept?</label>
+        <textarea id="q2" rows="2" required></textarea>
+
+        <label>3) How did your teacher improve your logical thinking?</label>
+        <textarea id="q3" rows="2" required></textarea>
+        
+        <label>4) How did your teacher improve your programming skills?</label>
+        <textarea id="q4" rows="2" required></textarea>
+
+        <label>5) How does the teacher engage the class?</label>
+        <textarea id="q5" rows="2" required></textarea>
+
+        <label>6) How relevant are the homework assignments?</label>
+        <textarea id="q6" rows="2" required></textarea>
+
+        <label>Overall Teaching Quality</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" name="quality" value="5" required />
+            <span>⭐⭐⭐⭐⭐ Excellent</span>
+          </div>
+          <div class="radio-option">
+            <input type="radio" name="quality" value="4" />
+            <span>⭐⭐⭐⭐ Good</span>
+          </div>
+          <div class="radio-option">
+            <input type="radio" name="quality" value="3" />
+            <span>⭐⭐⭐ Average</span>
+          </div>
+          <div class="radio-option">
+            <input type="radio" name="quality" value="2" />
+            <span>⭐⭐ Poor</span>
+          </div>
+          <div class="radio-option">
+            <input type="radio" name="quality" value="1" />
+            <span>⭐ Very Poor</span>
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">Submit Feedback</button>
+      </form>
+    </div>
+
+    <div id="student-complaints" class="tab-content">
+      <h2>⚠️ Complaint Dashboard</h2>
+      <div id="complaint-message" class="message"></div>
+
+      <form id="complaintForm" class="complaint-form">
+        <h3>Submit a Complaint</h3>
+
+        <label for="complaintType">Complaint Type</label>
+        <select id="complaintType" required>
+          <option value="">Select Type</option>
+          <option value="Faculty Issues">Faculty Issues</option>
+          <option value="Infrastructure">Infrastructure</option>
+          <option value="Academic Policies">Academic Policies</option>
+          <option value="Other">Other</option>
+        </select>
+
+        <label for="complaintFaculty">Related Faculty (Optional)</label>
+        <select id="complaintFaculty">
+          <option value="">Not faculty-specific</option>
+        </select>
+
+        <label for="complaintDate">📅 Date of Incident</label>
+        <input type="date" id="complaintDate" required />
+
+        <label for="complaintTime">🕐 Time of Incident</label>
+        <input type="time" id="complaintTime" required />
+
+        <label for="priority">Priority</label>
+        <select id="priority" required>
+          <option value="">Select Priority</option>
+          <option value="High">🔴 High</option>
+          <option value="Medium">🟡 Medium</option>
+          <option value="Low">🟢 Low</option>
+        </select>
+
+        <label for="complaintTitle">Title</label>
+        <input type="text" id="complaintTitle" placeholder="Brief title" required />
+
+        <label for="complaintDescription">Description</label>
+        <textarea id="complaintDescription" rows="5" required></textarea>
+
+        <button type="submit" class="submit-btn">Submit Complaint</button>
+      </form>
+    </div>
+
+    <!-- FACULTY DASHBOARD -->
+    <div id="faculty-dashboard" class="tab-content">
+      <h2>📊 My Performance Dashboard</h2>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="faculty-total-feedback">0</div>
+          <div class="stat-label">Total Feedbacks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="faculty-avg-rating">0.0</div>
+          <div class="stat-label">Avg Rating</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="faculty-complaints">0</div>
+          <div class="stat-label">Complaints</div>
+        </div>
+      </div>
+
+      <div class="charts-container">
+        <div class="chart-wrapper">
+          <h4>Feedback Ratings Over Time</h4>
+          <canvas id="facultyRatingChart"></canvas>
+        </div>
+      </div>
+
+      <h3>📝 Recent Feedback</h3>
+      <table id="facultyFeedbackTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Subject</th>
+            <th>Rating</th>
+            <th>Comments</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <h3>⚠️ Complaints About Me</h3>
+      <table id="facultyComplaintsTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Priority</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- FACULTY ALL FEEDBACKS DASHBOARD -->
+    <div id="faculty-all-feedbacks" class="tab-content">
+      <h2>💬 All Anonymous Feedbacks</h2>
+      <p style="color: #666; margin-bottom: 20px;">
+        📢 View all student feedbacks anonymously. Student names are hidden to maintain privacy.
+      </p>
+
+      <!-- Filter Options -->
+      <div style="background: #F0F8FF; padding: 20px; border-radius: 15px; margin-bottom: 25px;">
+        <h3>🔍 Filter Feedbacks</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
+          <div>
+            <label for="filter-faculty">Faculty</label>
+            <select id="filter-faculty" onchange="filterAllFeedbacks()">
+              <option value="">All Faculty</option>
+            </select>
+          </div>
+          <div>
+            <label for="filter-rating">Rating</label>
+            <select id="filter-rating" onchange="filterAllFeedbacks()">
+              <option value="">All Ratings</option>
+              <option value="5">⭐⭐⭐⭐⭐ 5 Stars</option>
+              <option value="4">⭐⭐⭐⭐ 4 Stars</option>
+              <option value="3">⭐⭐⭐ 3 Stars</option>
+              <option value="2">⭐⭐ 2 Stars</option>
+              <option value="1">⭐ 1 Star</option>
+            </select>
+          </div>
+          <div>
+            <label for="filter-subject">Subject</label>
+            <input type="text" id="filter-subject" placeholder="Search by subject" onkeyup="filterAllFeedbacks()" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Summary -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="all-feedbacks-count">0</div>
+          <div class="stat-label">Total Feedbacks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="all-feedbacks-avg">0.0</div>
+          <div class="stat-label">Average Rating</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="all-feedbacks-excellent">0</div>
+          <div class="stat-label">Excellent (5★)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="all-feedbacks-poor">0</div>
+          <div class="stat-label">Poor (≤2★)</div>
+        </div>
+      </div>
+
+      <!-- All Feedbacks Table -->
+      <h3>📋 Detailed Feedback List</h3>
+      <table id="allFeedbacksTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Faculty</th>
+            <th>Subject</th>
+            <th>Rating</th>
+            <th>Comments</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- FACULTY ALL COMPLAINTS DASHBOARD -->
+    <div id="faculty-all-complaints" class="tab-content">
+      <h2>⚠️ All Anonymous Complaints</h2>
+      <p style="color: #666; margin-bottom: 20px;">
+        📢 View all student complaints anonymously. Student names are hidden to maintain privacy.
+      </p>
+
+      <!-- Filter Options -->
+      <div style="background: #F0F8FF; padding: 20px; border-radius: 15px; margin-bottom: 25px;">
+        <h3>🔍 Filter Complaints</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
+          <div>
+            <label for="filter-complaint-faculty">Faculty</label>
+            <select id="filter-complaint-faculty" onchange="filterAllComplaints()">
+              <option value="">All Faculty</option>
+            </select>
+          </div>
+          <div>
+            <label for="filter-priority">Priority</label>
+            <select id="filter-priority" onchange="filterAllComplaints()">
+              <option value="">All Priorities</option>
+              <option value="High">🔴 High</option>
+              <option value="Medium">🟡 Medium</option>
+              <option value="Low">🟢 Low</option>
+            </select>
+          </div>
+          <div>
+            <label for="filter-complaint-type">Type</label>
+            <select id="filter-complaint-type" onchange="filterAllComplaints()">
+              <option value="">All Types</option>
+              <option value="Faculty Issues">Faculty Issues</option>
+              <option value="Infrastructure">Infrastructure</option>
+              <option value="Academic Policies">Academic Policies</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats Summary -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="all-complaints-count">0</div>
+          <div class="stat-label">Total Complaints</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="all-complaints-high">0</div>
+          <div class="stat-label">High Priority</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="all-complaints-medium">0</div>
+          <div class="stat-label">Medium Priority</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="all-complaints-low">0</div>
+          <div class="stat-label">Low Priority</div>
+        </div>
+      </div>
+
+      <!-- All Complaints Table -->
+      <h3>📋 Detailed Complaint List</h3>
+      <table id="allComplaintsTable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Faculty</th>
+            <th>Priority</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- HOD DASHBOARD -->
+    <div id="hod-overview" class="tab-content">
+      <h2>📊 Overall Performance Overview</h2>
+      
+      <!-- Export Buttons -->
+      <div style="display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;">
+        <button onclick="exportFeedbacksToCSV()" class="submit-btn" style="width: auto; margin: 0;">
+          📥 Download All Feedbacks (CSV)
+        </button>
+        <button onclick="exportComplaintsToCSV()" class="submit-btn" style="width: auto; margin: 0; background: linear-gradient(135deg, #dc3545, #c82333);">
+          📥 Download All Complaints (CSV)
+        </button>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="hod-total-faculty">0</div>
+          <div class="stat-label">Total Faculty</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="hod-total-feedback">0</div>
+          <div class="stat-label">Total Feedbacks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="hod-avg-rating">0.0</div>
+          <div class="stat-label">Avg Rating</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="hod-complaints">0</div>
+          <div class="stat-label">Active Complaints</div>
+        </div>
+      </div>
+
+      <div class="charts-container">
+        <div class="chart-wrapper">
+          <h4>Faculty Performance Comparison</h4>
+          <canvas id="hodPerformanceChart"></canvas>
+        </div>
+        <div class="chart-wrapper">
+          <h4>Rating Distribution</h4>
+          <canvas id="hodRatingDistChart"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div id="hod-faculty-detail" class="tab-content">
+      <h2>👨‍🏫 Individual Faculty Performance</h2>
+      
+      <!-- Export Button -->
+      <div style="margin-bottom: 25px;">
+        <button onclick="exportFacultyPerformanceToCSV()" class="submit-btn" style="width: auto; margin: 0;">
+          📥 Download Faculty Performance Report (CSV)
+        </button>
+      </div>
+      
+      <table id="hodFacultyTable">
+        <thead>
+          <tr>
+            <th>Faculty Name</th>
+            <th>Total Feedbacks</th>
+            <th>Avg Rating</th>
+            <th>Complaints</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div id="hod-complaints" class="tab-content">
+      <h2>⚠️ All Complaints</h2>
+      
+      <!-- Export Button -->
+      <div style="margin-bottom: 25px;">
+        <button onclick="exportComplaintsToCSV()" class="submit-btn" style="width: auto; margin: 0; background: linear-gradient(135deg, #dc3545, #c82333);">
+          📥 Download Complaints Report (CSV)
+        </button>
+      </div>
+      
+      <table id="hodComplaintsTable">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Date</th>
+            <th>Student</th>
+            <th>Faculty</th>
+            <th>Priority</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 KJ's Education Institutes - Trinity Academy of Engineering</p>
+    <p style="margin-top: 5px; font-size: 0.9em;">Faculty Performance & Interaction Tracker</p>
+  </footer>
+
+  <script>
+    let currentUser = null;
+    let currentRole = null;
+    let facultyRatingChart = null;
+    let hodPerformanceChart = null;
+    let hodRatingDistChart = null;
+
+    // Show message
+    function showMessage(containerId, message, type) {
+      const msgEl = document.getElementById(containerId);
+      msgEl.textContent = message;
+      msgEl.className = `message ${type}`;
+      msgEl.style.display = 'block';
+      setTimeout(() => msgEl.style.display = 'none', 5000);
+    }
+
+    // Toggle between Login and Signup
+    function toggleSignup() {
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const authTitle = document.getElementById('auth-title');
+      
+      if (loginForm.style.display === 'none') {
+        loginForm.style.display = 'block';
+        signupForm.style.display = 'none';
+        authTitle.textContent = '🎓 System Login';
+      } else {
+        loginForm.style.display = 'none';
+        signupForm.style.display = 'block';
+        authTitle.textContent = '📝 Create Account';
+      }
+      
+      // Clear messages
+      document.getElementById('message').style.display = 'none';
+    }
+
+    // Show role-specific fields on signup
+    document.addEventListener('DOMContentLoaded', () => {
+      const signupRole = document.getElementById('signup-role');
+      if (signupRole) {
+        signupRole.addEventListener('change', function() {
+          const studentFields = document.getElementById('student-fields');
+          const facultyFields = document.getElementById('faculty-fields');
+          
+          studentFields.style.display = 'none';
+          facultyFields.style.display = 'none';
+          
+          if (this.value === 'student') {
+            studentFields.style.display = 'block';
+          } else if (this.value === 'faculty') {
+            facultyFields.style.display = 'block';
+          }
+        });
+      }
+    });
+
+    // Signup Handler
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('signupForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const role = document.getElementById('signup-role').value;
+        const name = document.getElementById('signup-name').value;
+        const email = document.getElementById('signup-email').value;
+        const password = document.getElementById('signup-password').value;
+        const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+        // Validation
+        if (password.length < 6) {
+          showMessage('message', '❌ Password must be at least 6 characters', 'error');
+          return;
+        }
+
+        if (password !== confirmPassword) {
+          showMessage('message', '❌ Passwords do not match', 'error');
+          return;
+        }
+
+        const formData = new FormData();
+        formData.append('role', role);
+        formData.append('name', name);
+        formData.append('email', email);
+        formData.append('password', password);
+
+        // Add role-specific fields
+        if (role === 'student') {
+          formData.append('enrollment_no', document.getElementById('signup-enrollment').value || '');
+          formData.append('class', document.getElementById('signup-class').value || '');
+        } else if (role === 'faculty') {
+          formData.append('subject', document.getElementById('signup-subject').value || '');
+          formData.append('department', document.getElementById('signup-department').value || '');
+        }
+
+        try {
+          const response = await fetch('http://localhost/backend/signup.php', {
+            method: 'POST',
+            body: formData
+          });
+
+          const data = await response.json();
+          
+          if (data.status === 'success') {
+            showMessage('message', '✅ Account created! Please login.', 'success');
+            setTimeout(() => {
+              toggleSignup();
+              document.getElementById('signupForm').reset();
+            }, 2000);
+          } else {
+            showMessage('message', '❌ ' + data.message, 'error');
+          }
+        } catch (error) {
+          console.error('Signup error:', error);
+          showMessage('message', '❌ Connection error: ' + error.message, 'error');
+        }
+      });
+    });
+
+    // Login
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const role = document.getElementById('role').value;
+      const identifier = document.getElementById('identifier').value;
+      const password = document.getElementById('password').value;
+
+      const formData = new FormData();
+      formData.append('role', role);
+      formData.append('identifier', identifier);
+      formData.append('password', password);
+
+      try {
+        const response = await fetch('http://localhost/backend/login.php', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+          currentUser = data.data;
+          currentRole = data.data.role;
+          
+          document.getElementById('login-page').style.display = 'none';
+          document.getElementById('main-app').style.display = 'block';
+          document.getElementById('user-info').textContent = `Welcome, ${data.data.name}!`;
+          
+          loadUserDashboard(currentRole);
+        } else {
+          showMessage('message', '❌ ' + data.message, 'error');
+        }
+      } catch (error) {
+        showMessage('message', '❌ Connection error', 'error');
+      }
+    });
+
+    // Load appropriate dashboard
+    function loadUserDashboard(role) {
+      const nav = document.getElementById('main-nav');
+      nav.innerHTML = '';
+
+      if (role === 'student') {
+        nav.innerHTML = `
+          <button class="tab-button active" data-tab="student-feedback">💬 Feedback</button>
+          <button class="tab-button" data-tab="student-complaints">⚠️ Complaints</button>
+        `;
+        showTab('student-feedback');
+        loadFacultyDropdowns();
+        setCurrentDateTime(); // Set default date and time
+      } else if (role === 'faculty') {
+        nav.innerHTML = `
+          <button class="tab-button active" data-tab="faculty-dashboard">📊 My Dashboard</button>
+          <button class="tab-button" data-tab="faculty-all-feedbacks">💬 All Feedbacks</button>
+          <button class="tab-button" data-tab="faculty-all-complaints">⚠️ All Complaints</button>
+        `;
+        showTab('faculty-dashboard');
+        loadFacultyDashboard();
+      } else if (role === 'hod') {
+        nav.innerHTML = `
+          <button class="tab-button active" data-tab="hod-overview">📊 Overview</button>
+          <button class="tab-button" data-tab="hod-faculty-detail">👨‍🏫 Faculty Details</button>
+          <button class="tab-button" data-tab="hod-complaints">⚠️ Complaints</button>
+        `;
+        showTab('hod-overview');
+        loadHODDashboard();
+      }
+
+      // Attach tab listeners
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          btn.classList.add('active');
+          showTab(btn.dataset.tab);
+        });
+      });
+    }
+
+    function showTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+    }
+
+    // Set current date and time as default
+    function setCurrentDateTime() {
+      const now = new Date();
+      
+      // Format date as YYYY-MM-DD
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const day = String(now.getDate()).padStart(2, '0');
+      const dateString = `${year}-${month}-${day}`;
+      
+      // Format time as HH:MM
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const timeString = `${hours}:${minutes}`;
+      
+      // Set date and time for feedback form
+      const feedbackDate = document.getElementById('feedbackDate');
+      const feedbackTime = document.getElementById('feedbackTime');
+      if (feedbackDate) feedbackDate.value = dateString;
+      if (feedbackTime) feedbackTime.value = timeString;
+      
+      // Set date and time for complaint form
+      const complaintDate = document.getElementById('complaintDate');
+      const complaintTime = document.getElementById('complaintTime');
+      if (complaintDate) complaintDate.value = dateString;
+      if (complaintTime) complaintTime.value = timeString;
+    }
+
+    // Logout
+    function logout() {
+      currentUser = null;
+      currentRole = null;
+      document.getElementById('login-page').style.display = 'block';
+      document.getElementById('main-app').style.display = 'none';
+      document.getElementById('loginForm').reset();
+    }
+
+    // Load faculty dropdowns
+    async function loadFacultyDropdowns() {
+      try {
+        // Fetch real faculty from database
+        const response = await fetch('http://localhost/backend/get_faculty.php');
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+          const faculties = data.data;
+          
+          const select1 = document.getElementById('facultySelect');
+          const select2 = document.getElementById('complaintFaculty');
+          
+          // Clear and populate dropdowns
+          select1.innerHTML = '<option value="">Select Faculty</option>';
+          select2.innerHTML = '<option value="">Not faculty-specific</option>';
+          
+          faculties.forEach(f => {
+            select1.innerHTML += `<option value="${f.faculty_id}">${f.name} - ${f.subject}</option>`;
+            select2.innerHTML += `<option value="${f.faculty_id}">${f.name} - ${f.department}</option>`;
+          });
+        } else {
+          console.error('Failed to load faculty:', data.message);
+          // Fallback to empty if no faculty found
+          showMessage('feedback-message', 'ℹ️ No faculty members found. Please add faculty via admin panel.', 'info');
+        }
+      } catch (error) {
+        console.error('Error loading faculty:', error);
+        showMessage('feedback-message', '❌ Error loading faculty list', 'error');
+      }
+    }
+
+    // Student Feedback Submit
+    document.getElementById('studentFeedbackForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const feedbackDate = document.getElementById('feedbackDate').value;
+      const feedbackTime = document.getElementById('feedbackTime').value;
+      const dateTime = `Date: ${feedbackDate}, Time: ${feedbackTime}\n`;
+      
+      const comments = `${dateTime}Q1: ${document.getElementById('q1').value}\nQ2: ${document.getElementById('q2').value}\nQ3: ${document.getElementById('q3').value}\nQ4: ${document.getElementById('q4').value}\nQ5: ${document.getElementById('q5').value}\nQ6: ${document.getElementById('q6').value}`;
+
+      const formData = new FormData();
+      formData.append('student_id', currentUser.id);
+      formData.append('faculty_id', document.getElementById('facultySelect').value);
+      formData.append('subject', document.getElementById('subjectSelect').value);
+      formData.append('rating', document.querySelector('input[name="quality"]:checked').value);
+      formData.append('comments', comments);
+      formData.append('feedback_date', feedbackDate);
+      formData.append('feedback_time', feedbackTime);
+
+      try {
+        const response = await fetch('http://localhost/backend/submit_feedback.php', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+          showMessage('feedback-message', '✅ Feedback submitted!', 'success');
+          document.getElementById('studentFeedbackForm').reset();
+        } else {
+          showMessage('feedback-message', '❌ ' + data.message, 'error');
+        }
+      } catch (error) {
+        showMessage('feedback-message', '❌ Error submitting', 'error');
+      }
+    });
+
+    // Student Complaint Submit
+    document.getElementById('complaintForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const complaintDate = document.getElementById('complaintDate').value;
+      const complaintTime = document.getElementById('complaintTime').value;
+      
+      const desc = `Date: ${complaintDate}, Time: ${complaintTime}\nType: ${document.getElementById('complaintType').value}\nPriority: ${document.getElementById('priority').value}\nTitle: ${document.getElementById('complaintTitle').value}\n\n${document.getElementById('complaintDescription').value}`;
+
+      const formData = new FormData();
+      formData.append('student_id', currentUser.id);
+      formData.append('faculty_id', document.getElementById('complaintFaculty').value);
+      formData.append('description', desc);
+      formData.append('complaint_date', complaintDate);
+      formData.append('complaint_time', complaintTime);
+
+      try {
+        const response = await fetch('http://localhost/backend/submit_complaint.php', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+          showMessage('complaint-message', '✅ Complaint submitted!', 'success');
+          document.getElementById('complaintForm').reset();
+        } else {
+          showMessage('complaint-message', '❌ ' + data.message, 'error');
+        }
+      } catch (error) {
+        showMessage('complaint-message', '❌ Error submitting', 'error');
+      }
+    });
+
+    // Faculty Dashboard
+    async function loadFacultyDashboard() {
+      try {
+        // Fetch feedback
+        const feedbackRes = await fetch(`http://localhost/backend/get_feedback.php?role=faculty&faculty_id=${currentUser.id}`);
+        const feedbackData = await feedbackRes.json();
+        
+        if (feedbackData.status === 'success') {
+          const feedbacks = feedbackData.data;
+          document.getElementById('faculty-total-feedback').textContent = feedbacks.length;
+          
+          const avgRating = feedbacks.length > 0 ? (feedbacks.reduce((sum, f) => sum + parseFloat(f.rating), 0) / feedbacks.length).toFixed(1) : '0.0';
+          document.getElementById('faculty-avg-rating').textContent = avgRating;
+
+          // Populate table
+          const tbody = document.querySelector('#facultyFeedbackTable tbody');
+          tbody.innerHTML = '';
+          feedbacks.forEach(f => {
+            tbody.innerHTML += `
+              <tr>
+                <td>${new Date(f.timestamp).toLocaleDateString()}</td>
+                <td>${f.subject}</td>
+                <td><span class="badge ${getRatingBadge(f.rating)}">${f.rating}/5</span></td>
+                <td style="text-align: left; max-width: 300px;">${f.comments.substring(0, 100)}...</td>
+              </tr>
+            `;
+          });
+
+          // Create chart
+          createFacultyRatingChart(feedbacks);
+        }
+
+        // Fetch complaints
+        const complaintsRes = await fetch(`http://localhost/backend/get_complaints.php?role=hod&faculty_id=${currentUser.id}`);
+        const complaintsData = await complaintsRes.json();
+        
+        if (complaintsData.status === 'success') {3
+          6+
+          0
+          const complaints = complaintsData.data;
+          document.getElementById('faculty-complaints').textContent = complaints.length;
+
+          const tbody = document.querySelector('#facultyComplaintsTable tbody');
+          tbody.innerHTML = '';
+          complaints.forEach(c => {
+            tbody.innerHTML += `
+              <tr>
+                <td>${new Date(c.date).toLocaleDateString()}</td>
+                <td><span class="badge badge-${c.description.includes('High') ? 'high' : c.description.includes('Medium') ? 'medium' : 'low'}">Priority</span></td>
+                <td style="text-align: left;">${c.description.substring(0, 150)}...</td>
+              </tr>
+            `;
+          });
+        }
+      } catch (error) {
+        console.error('Error loading faculty dashboard:', error);
+      }
+    }
+
+    function createFacultyRatingChart(feedbacks) {
+      const ctx = document.getElementById('facultyRatingChart').getContext('2d');
+      if (facultyRatingChart) facultyRatingChart.destroy();
+
+      const labels = feedbacks.map(f => new Date(f.timestamp).toLocaleDateString()).slice(-10);
+      const data = feedbacks.map(f => parseFloat(f.rating)).slice(-10);
+
+      facultyRatingChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Rating',
+            data: data,
+            borderColor: '#007BFF',
+            backgroundColor: 'rgba(0, 123, 255, 0.1)',
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, max: 5 }
+          }
+        }
+      });
+    }
+
+    // HOD Dashboard
+    async function loadHODDashboard() {
+      try {
+        const feedbackRes = await fetch('http://localhost/backend/get_feedback.php?role=hod');
+        const feedbackData = await feedbackRes.json();
+        
+        if (feedbackData.status === 'success') {
+          const feedbacks = feedbackData.data;
+          document.getElementById('hod-total-feedback').textContent = feedbacks.length;
+
+          // Count unique faculty
+          const uniqueFaculty = [...new Set(feedbacks.map(f => f.faculty_name))];
+          document.getElementById('hod-total-faculty').textContent = uniqueFaculty.length;
+
+          const avgRating = feedbacks.length > 0 ? (feedbacks.reduce((sum, f) => sum + parseFloat(f.rating), 0) / feedbacks.length).toFixed(1) : '0.0';
+          document.getElementById('hod-avg-rating').textContent = avgRating;
+
+          // Create charts
+          createHODPerformanceChart(feedbacks);
+          createRatingDistributionChart(feedbacks);
+          populateFacultyTable(feedbacks);
+        }
+
+        const complaintsRes = await fetch('http://localhost/backend/get_complaints.php?role=hod');
+        const complaintsData = await complaintsRes.json();
+        
+        if (complaintsData.status === 'success') {
+          const complaints = complaintsData.data;
+          document.getElementById('hod-complaints').textContent = complaints.length;
+          populateComplaintsTable(complaints);
+        }
+      } catch (error) {
+        console.error('Error loading HOD dashboard:', error);
+      }
+    }
+
+    function createHODPerformanceChart(feedbacks) {
+      const ctx = document.getElementById('hodPerformanceChart').getContext('2d');
+      if (hodPerformanceChart) hodPerformanceChart.destroy();
+
+      // Group by faculty
+      const facultyGroups = {};
+      feedbacks.forEach(f => {
+        if (!facultyGroups[f.faculty_name]) facultyGroups[f.faculty_name] = [];
+        facultyGroups[f.faculty_name].push(parseFloat(f.rating));
+      });
+
+      const labels = Object.keys(facultyGroups);
+      const data = labels.map(name => {
+        const ratings = facultyGroups[name];
+        return (ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1);
+      });
+
+      hodPerformanceChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Avg Rating',
+            data: data,
+            backgroundColor: '#007BFF'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, max: 5 }
+          }
+        }
+      });
+    }
+
+    function createRatingDistributionChart(feedbacks) {
+      const ctx = document.getElementById('hodRatingDistChart').getContext('2d');
+      if (hodRatingDistChart) hodRatingDistChart.destroy();
+
+      const distribution = [0, 0, 0, 0, 0];
+      feedbacks.forEach(f => {
+        const rating = Math.floor(parseFloat(f.rating));
+        if (rating >= 1 && rating <= 5) distribution[rating - 1]++;
+      });
+
+      hodRatingDistChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['1 Star', '2 Stars', '3 Stars', '4 Stars', '5 Stars'],
+          datasets: [{
+            data: distribution,
+            backgroundColor: ['#dc3545', '#fd7e14', '#ffc107', '#007BFF', '#28a745']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false
+        }
+      });
+    }
+
+    function populateFacultyTable(feedbacks) {
+      const facultyGroups = {};
+      feedbacks.forEach(f => {
+        if (!facultyGroups[f.faculty_name]) {
+          facultyGroups[f.faculty_name] = { feedbacks: [], complaints: 0 };
+        }
+        facultyGroups[f.faculty_name].feedbacks.push(parseFloat(f.rating));
+      });
+
+      const tbody = document.querySelector('#hodFacultyTable tbody');
+      tbody.innerHTML = '';
+      
+      Object.keys(facultyGroups).forEach(name => {
+        const data = facultyGroups[name];
+        const avgRating = (data.feedbacks.reduce((a, b) => a + b, 0) / data.feedbacks.length).toFixed(1);
+        const badge = getRatingBadge(avgRating);
+        
+        tbody.innerHTML += `
+          <tr>
+            <td>${name}</td>
+            <td>${data.feedbacks.length}</td>
+            <td><span class="badge ${badge}">${avgRating}</span></td>
+            <td>${data.complaints}</td>
+            <td><span class="badge ${badge}">${getPerformanceStatus(avgRating)}</span></td>
+          </tr>
+        `;
+      });
+    }
+
+    function populateComplaintsTable(complaints) {
+      const tbody = document.querySelector('#hodComplaintsTable tbody');
+      tbody.innerHTML = '';
+      
+      complaints.forEach(c => {
+        const priority = c.description.includes('High') ? 'high' : c.description.includes('Medium') ? 'medium' : 'low';
+        tbody.innerHTML += `
+          <tr>
+            <td>${c.complaint_id}</td>
+            <td>${new Date(c.date).toLocaleDateString()}</td>
+            <td>${c.student_name}</td>
+            <td>${c.faculty_name || 'General'}</td>
+            <td><span class="badge badge-${priority}">${priority.toUpperCase()}</span></td>
+            <td style="text-align: left; max-width: 400px;">${c.description.substring(0, 200)}...</td>
+          </tr>
+        `;
+      });
+    }
+
+    function getRatingBadge(rating) {
+      const r = parseFloat(rating);
+      if (r >= 4.5) return 'badge-excellent';
+      if (r >= 3.5) return 'badge-good';
+      if (r >= 2.5) return 'badge-average';
+      return 'badge-poor';
+    }
+
+    function getPerformanceStatus(rating) {
+      const r = parseFloat(rating);
+      if (r >= 4.5) return 'Excellent';
+      if (r >= 3.5) return 'Good';
+      if (r >= 2.5) return 'Average';
+      return 'Needs Improvement';
+    }
+
+    // Faculty - Load ALL Feedbacks (Anonymous)
+    let allFeedbacksData = [];
+    
+    async function loadAllFeedbacks() {
+      try {
+        const response = await fetch('http://localhost/backend/get_feedback.php?role=hod');
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+          allFeedbacksData = data.data;
+          
+          // Populate faculty filter dropdown
+          const facultySelect = document.getElementById('filter-faculty');
+          const uniqueFaculty = [...new Set(allFeedbacksData.map(f => f.faculty_name))];
+          facultySelect.innerHTML = '<option value="">All Faculty</option>';
+          uniqueFaculty.forEach(name => {
+            facultySelect.innerHTML += `<option value="${name}">${name}</option>`;
+          });
+          
+          filterAllFeedbacks();
+        }
+      } catch (error) {
+        console.error('Error loading all feedbacks:', error);
+      }
+    }
+    
+    function filterAllFeedbacks() {
+      const facultyFilter = document.getElementById('filter-faculty').value;
+      const ratingFilter = document.getElementById('filter-rating').value;
+      const subjectFilter = document.getElementById('filter-subject').value.toLowerCase();
+      
+      let filtered = allFeedbacksData.filter(f => {
+        let match = true;
+        if (facultyFilter && f.faculty_name !== facultyFilter) match = false;
+        if (ratingFilter && Math.floor(parseFloat(f.rating)) !== parseInt(ratingFilter)) match = false;
+        if (subjectFilter && !f.subject.toLowerCase().includes(subjectFilter)) match = false;
+        return match;
+      });
+      
+      // Update stats
+      document.getElementById('all-feedbacks-count').textContent = filtered.length;
+      const avgRating = filtered.length > 0 
+        ? (filtered.reduce((sum, f) => sum + parseFloat(f.rating), 0) / filtered.length).toFixed(1) 
+        : '0.0';
+      document.getElementById('all-feedbacks-avg').textContent = avgRating;
+      
+      const excellent = filtered.filter(f => parseFloat(f.rating) >= 5).length;
+      const poor = filtered.filter(f => parseFloat(f.rating) <= 2).length;
+      document.getElementById('all-feedbacks-excellent').textContent = excellent;
+      document.getElementById('all-feedbacks-poor').textContent = poor;
+      
+      // Populate table
+      const tbody = document.querySelector('#allFeedbacksTable tbody');
+      tbody.innerHTML = '';
+      
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No feedbacks found</td></tr>';
+        return;
+      }
+      
+      filtered.forEach(f => {
+        tbody.innerHTML += `
+          <tr>
+            <td>${new Date(f.timestamp).toLocaleDateString()}</td>
+            <td><strong>${f.faculty_name}</strong></td>
+            <td>${f.subject}</td>
+            <td><span class="badge ${getRatingBadge(f.rating)}">${f.rating}/5 ⭐</span></td>
+            <td style="text-align: left; max-width: 400px;">${f.comments}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // Faculty - Load ALL Complaints (Anonymous)
+    let allComplaintsData = [];
+    
+    async function loadAllComplaints() {
+      try {
+        const response = await fetch('http://localhost/backend/get_complaints.php?role=hod');
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+          allComplaintsData = data.data;
+          
+          // Populate faculty filter dropdown
+          const facultySelect = document.getElementById('filter-complaint-faculty');
+          const uniqueFaculty = [...new Set(allComplaintsData.map(c => c.faculty_name).filter(n => n))];
+          facultySelect.innerHTML = '<option value="">All Faculty</option>';
+          uniqueFaculty.forEach(name => {
+            facultySelect.innerHTML += `<option value="${name}">${name}</option>`;
+          });
+          
+          filterAllComplaints();
+        }
+      } catch (error) {
+        console.error('Error loading all complaints:', error);
+      }
+    }
+    
+    function filterAllComplaints() {
+      const facultyFilter = document.getElementById('filter-complaint-faculty').value;
+      const priorityFilter = document.getElementById('filter-priority').value;
+      const typeFilter = document.getElementById('filter-complaint-type').value;
+      
+      let filtered = allComplaintsData.filter(c => {
+        let match = true;
+        if (facultyFilter && c.faculty_name !== facultyFilter) match = false;
+        if (priorityFilter && !c.description.includes(priorityFilter)) match = false;
+        if (typeFilter && !c.description.includes(typeFilter)) match = false;
+        return match;
+      });
+      
+      // Update stats
+      document.getElementById('all-complaints-count').textContent = filtered.length;
+      
+      const high = filtered.filter(c => c.description.includes('High')).length;
+      const medium = filtered.filter(c => c.description.includes('Medium')).length;
+      const low = filtered.filter(c => c.description.includes('Low')).length;
+      
+      document.getElementById('all-complaints-high').textContent = high;
+      document.getElementById('all-complaints-medium').textContent = medium;
+      document.getElementById('all-complaints-low').textContent = low;
+      
+      // Populate table
+      const tbody = document.querySelector('#allComplaintsTable tbody');
+      tbody.innerHTML = '';
+      
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No complaints found</td></tr>';
+        return;
+      }
+      
+      filtered.forEach(c => {
+        // Extract type and priority from description
+        const lines = c.description.split('\n');
+        const typeLine = lines.find(l => l.startsWith('Type:')) || '';
+        const priorityLine = lines.find(l => l.startsWith('Priority:')) || '';
+        
+        const type = typeLine.replace('Type:', '').trim();
+        const priority = priorityLine.replace('Priority:', '').trim();
+        const priorityClass = priority.toLowerCase();
+        
+        tbody.innerHTML += `
+          <tr>
+            <td>${new Date(c.date).toLocaleDateString()}</td>
+            <td><strong>${c.faculty_name || 'General'}</strong></td>
+            <td><span class="badge badge-${priorityClass}">${priority}</span></td>
+            <td><span class="badge badge-${priorityClass === 'high' ? 'high' : 'low'}">${type}</span></td>
+            <td style="text-align: left; max-width: 500px;">${c.description}</td>
+          </tr>
+        `;
+      });
+    }
+
+    // Override tab click to load data when switching to all feedbacks/complaints
+    document.addEventListener('DOMContentLoaded', () => {
+      // Add event delegation for tab buttons
+      document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('tab-button')) {
+          const tab = e.target.dataset.tab;
+          
+          if (tab === 'faculty-all-feedbacks' && currentRole === 'faculty') {
+            loadAllFeedbacks();
+          } else if (tab === 'faculty-all-complaints' && currentRole === 'faculty') {
+            loadAllComplaints();
+          }
+        }
+      });
+    });
+
+    // CSV Export Functions for HOD
+    let allHODFeedbacks = [];
+    let allHODComplaints = [];
+
+    // Function to convert data to CSV format
+    function convertToCSV(data, headers) {
+      const csvRows = [];
+      
+      // Add headers
+      csvRows.push(headers.join(','));
+      
+      // Add data rows
+      data.forEach(row => {
+        const values = headers.map(header => {
+          const value = row[header] || '';
+          // Escape quotes and wrap in quotes if contains comma or newline
+          const escaped = String(value).replace(/"/g, '""');
+          return `"${escaped}"`;
+        });
+        csvRows.push(values.join(','));
+      });
+      
+      return csvRows.join('\n');
+    }
+
+    // Function to download CSV file
+    function downloadCSV(csvContent, filename) {
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      
+      link.setAttribute('href', url);
+      link.setAttribute('download', filename);
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Export All Feedbacks to CSV
+    async function exportFeedbacksToCSV() {
+      try {
+        const response = await fetch('http://localhost/backend/get_feedback.php?role=hod');
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.data.length > 0) {
+          const feedbacks = data.data;
+          
+          // Prepare data for CSV
+          const csvData = feedbacks.map(f => ({
+            'Date': new Date(f.timestamp).toLocaleDateString(),
+            'Time': new Date(f.timestamp).toLocaleTimeString(),
+            'Faculty Name': f.faculty_name || 'N/A',
+            'Subject': f.subject || 'N/A',
+            'Rating': f.rating || 'N/A',
+            'Student Name': 'Anonymous',
+            'Comments': f.comments || 'No comments',
+            'Feedback ID': f.feedback_id || 'N/A'
+          }));
+          
+          const headers = ['Date', 'Time', 'Faculty Name', 'Subject', 'Rating', 'Student Name', 'Comments', 'Feedback ID'];
+          const csv = convertToCSV(csvData, headers);
+          
+          const filename = `Feedbacks_Report_${new Date().toISOString().split('T')[0]}.csv`;
+          downloadCSV(csv, filename);
+          
+          alert('✅ Feedbacks exported successfully!');
+        } else {
+          alert('⚠️ No feedbacks available to export.');
+        }
+      } catch (error) {
+        console.error('Error exporting feedbacks:', error);
+        alert('❌ Error exporting feedbacks. Please try again.');
+      }
+    }
+
+    // Export All Complaints to CSV
+    async function exportComplaintsToCSV() {
+      try {
+        const response = await fetch('http://localhost/backend/get_complaints.php?role=hod');
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.data.length > 0) {
+          const complaints = data.data;
+          
+          // Prepare data for CSV
+          const csvData = complaints.map(c => {
+            // Extract details from description
+            const lines = c.description.split('\n');
+            const dateLine = lines.find(l => l.startsWith('Date:')) || '';
+            const typeLine = lines.find(l => l.startsWith('Type:')) || '';
+            const priorityLine = lines.find(l => l.startsWith('Priority:')) || '';
+            const titleLine = lines.find(l => l.startsWith('Title:')) || '';
+            
+            const incidentDate = dateLine.replace('Date:', '').split(',')[0].trim();
+            const incidentTime = dateLine.split('Time:')[1] ? dateLine.split('Time:')[1].trim() : 'N/A';
+            const type = typeLine.replace('Type:', '').trim();
+            const priority = priorityLine.replace('Priority:', '').trim();
+            const title = titleLine.replace('Title:', '').trim();
+            
+            return {
+              'Complaint ID': c.complaint_id || 'N/A',
+              'Submission Date': new Date(c.date).toLocaleDateString(),
+              'Submission Time': new Date(c.date).toLocaleTimeString(),
+              'Incident Date': incidentDate || 'N/A',
+              'Incident Time': incidentTime || 'N/A',
+              'Student Name': 'Anonymous',
+              'Faculty Name': c.faculty_name || 'General',
+              'Type': type || 'N/A',
+              'Priority': priority || 'N/A',
+              'Title': title || 'N/A',
+              'Description': c.description || 'No description'
+            };
+          });
+          
+          const headers = ['Complaint ID', 'Submission Date', 'Submission Time', 'Incident Date', 'Incident Time', 'Student Name', 'Faculty Name', 'Type', 'Priority', 'Title', 'Description'];
+          const csv = convertToCSV(csvData, headers);
+          
+          const filename = `Complaints_Report_${new Date().toISOString().split('T')[0]}.csv`;
+          downloadCSV(csv, filename);
+          
+          alert('✅ Complaints exported successfully!');
+        } else {
+          alert('⚠️ No complaints available to export.');
+        }
+      } catch (error) {
+        console.error('Error exporting complaints:', error);
+        alert('❌ Error exporting complaints. Please try again.');
+      }
+    }
+
+    // Export Faculty Performance Report to CSV
+    async function exportFacultyPerformanceToCSV() {
+      try {
+        const response = await fetch('http://localhost/backend/get_feedback.php?role=hod');
+        const data = await response.json();
+        
+        if (data.status === 'success' && data.data.length > 0) {
+          const feedbacks = data.data;
+          
+          // Group by faculty
+          const facultyGroups = {};
+          feedbacks.forEach(f => {
+            if (!facultyGroups[f.faculty_name]) {
+              facultyGroups[f.faculty_name] = { feedbacks: [], complaints: 0 };
+            }
+            facultyGroups[f.faculty_name].feedbacks.push(parseFloat(f.rating));
+          });
+          
+          // Prepare data for CSV
+          const csvData = Object.keys(facultyGroups).map(name => {
+            const data = facultyGroups[name];
+            const avgRating = (data.feedbacks.reduce((a, b) => a + b, 0) / data.feedbacks.length).toFixed(2);
+            const totalFeedbacks = data.feedbacks.length;
+            const excellent = data.feedbacks.filter(r => r >= 4.5).length;
+            const good = data.feedbacks.filter(r => r >= 3.5 && r < 4.5).length;
+            const average = data.feedbacks.filter(r => r >= 2.5 && r < 3.5).length;
+            const poor = data.feedbacks.filter(r => r < 2.5).length;
+            
+            let status = 'Needs Improvement';
+            if (avgRating >= 4.5) status = 'Excellent';
+            else if (avgRating >= 3.5) status = 'Good';
+            else if (avgRating >= 2.5) status = 'Average';
+            
+            return {
+              'Faculty Name': name,
+              'Total Feedbacks': totalFeedbacks,
+              'Average Rating': avgRating,
+              'Excellent (≥4.5)': excellent,
+              'Good (3.5-4.5)': good,
+              'Average (2.5-3.5)': average,
+              'Poor (<2.5)': poor,
+              'Complaints': data.complaints,
+              'Performance Status': status
+            };
+          });
+          
+          const headers = ['Faculty Name', 'Total Feedbacks', 'Average Rating', 'Excellent (≥4.5)', 'Good (3.5-4.5)', 'Average (2.5-3.5)', 'Poor (<2.5)', 'Complaints', 'Performance Status'];
+          const csv = convertToCSV(csvData, headers);
+          
+          const filename = `Faculty_Performance_Report_${new Date().toISOString().split('T')[0]}.csv`;
+          downloadCSV(csv, filename);
+          
+          alert('✅ Faculty performance report exported successfully!');
+        } else {
+          alert('⚠️ No data available to export.');
+        }
+      } catch (error) {
+        console.error('Error exporting faculty performance:', error);
+        alert('❌ Error exporting report. Please try again.');
+      }
+    }
+  </script>
+</body>
+</html>
