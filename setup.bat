@@ -56,12 +56,21 @@ if %MISSING%==1 (
 )
 
 echo [3/7] Checking XAMPP installation...
-if exist "C:\xampp\htdocs\" (
+if exist "C:\xampp\php\php.exe" (
     echo     [OK] XAMPP found at C:\xampp
 ) else (
-    echo     [FAIL] XAMPP not found at C:\xampp
-    echo     Please install XAMPP from: https://www.apachefriends.org/
-    goto :error
+    echo     [WARNING] XAMPP not fully installed at C:\xampp
+    echo.
+    echo     XAMPP needs to be properly installed.
+    echo     Opening download page...
+    start https://www.apachefriends.org/download.html
+    echo.
+    echo     After downloading and installing XAMPP:
+    echo     1. Install to C:\xampp (default location)
+    echo     2. Run this script again
+    echo.
+    pause
+    exit /b 1
 )
 
 echo [4/7] Checking backend location...
@@ -90,6 +99,15 @@ if exist "C:\xampp\htdocs\backend\config.php" (
 )
 
 echo [5/7] Checking XAMPP services...
+echo     Starting XAMPP Control Panel...
+if exist "C:\xampp\xampp-control.exe" (
+    start "" "C:\xampp\xampp-control.exe"
+    echo     [INFO] XAMPP Control Panel opened
+    echo     Please click START next to Apache and MySQL
+    echo.
+    timeout /t 5 >nul
+)
+
 tasklist /FI "IMAGENAME eq httpd.exe" 2>NUL | find /I /N "httpd.exe">NUL
 if "%ERRORLEVEL%"=="0" (
     echo     [OK] Apache is running
@@ -107,18 +125,15 @@ if "%ERRORLEVEL%"=="0" (
 )
 
 echo [6/7] Opening setup resources...
-echo     - Opening phpMyAdmin for database setup...
-start http://localhost/phpmyadmin
+echo     - Opening automatic database setup...
+start http://localhost/backend/auto_setup.php
 
-timeout /t 2 >nul
+timeout /t 3 >nul
 
 echo     - Opening backend test page...
 start http://localhost/backend/test_backend.php
 
 timeout /t 2 >nul
-
-echo     - Opening Quick Start guide...
-start QUICK_START.md
 
 echo [7/7] Setup verification complete!
 echo.
@@ -126,18 +141,15 @@ echo ================================================
 echo  Next Steps:
 echo ================================================
 echo.
-echo  1. In phpMyAdmin (opened in browser):
-echo     - Create database: faculty_tracker
-echo     - Import file: backend\database.sql
+echo  1. Auto Setup page opened in browser
+echo     - This creates the database automatically!
+echo     - Wait for "Setup Complete!" message
 echo.
 echo  2. Check test page results (opened in browser)
 echo     - All tests should show PASS
 echo.
-echo  3. Follow QUICK_START.md guide (opened)
-echo     - Complete remaining setup steps
-echo.
-echo  4. Open faculty_tracker.html in browser
-echo     - Test login with sample accounts
+echo  3. Open faculty_tracker.html in browser
+echo     - Test login with sample accounts below
 echo.
 echo ================================================
 echo  Test Accounts:

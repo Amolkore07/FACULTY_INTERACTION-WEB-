@@ -1125,6 +1125,14 @@
   </footer>
 
   <script>
+    // ============================================================
+    // API CONFIGURATION - Change this if your backend runs on a different port
+    // ============================================================
+    // For XAMPP (default): 'http://localhost/backend'
+    // For PHP built-in server: 'http://localhost:8000'
+    const API_BASE = 'http://localhost/backend';
+    // ============================================================
+
     let currentUser = null;
     let currentRole = null;
     let facultyRatingChart = null;
@@ -1218,7 +1226,7 @@
         }
 
         try {
-          const response = await fetch('http://localhost/backend/signup.php', {
+          const response = await fetch(`${API_BASE}/signup.php`, {
             method: 'POST',
             body: formData
           });
@@ -1254,7 +1262,7 @@
       formData.append('password', password);
 
       try {
-        const response = await fetch('http://localhost/backend/login.php', {
+        const response = await fetch(`${API_BASE}/login.php`, {
           method: 'POST',
           body: formData
         });
@@ -1366,7 +1374,7 @@
     async function loadFacultyDropdowns() {
       try {
         // Fetch real faculty from database
-        const response = await fetch('http://localhost/backend/get_faculty.php');
+        const response = await fetch(`${API_BASE}/get_faculty.php`);
         const data = await response.json();
         
         if (data.status === 'success') {
@@ -1414,7 +1422,7 @@
       formData.append('feedback_time', feedbackTime);
 
       try {
-        const response = await fetch('http://localhost/backend/submit_feedback.php', {
+        const response = await fetch(`${API_BASE}/submit_feedback.php`, {
           method: 'POST',
           body: formData
         });
@@ -1449,7 +1457,7 @@
       formData.append('complaint_time', complaintTime);
 
       try {
-        const response = await fetch('http://localhost/backend/submit_complaint.php', {
+        const response = await fetch(`${API_BASE}/submit_complaint.php`, {
           method: 'POST',
           body: formData
         });
@@ -1471,7 +1479,7 @@
     async function loadFacultyDashboard() {
       try {
         // Fetch feedback
-        const feedbackRes = await fetch(`http://localhost/backend/get_feedback.php?role=faculty&faculty_id=${currentUser.id}`);
+        const feedbackRes = await fetch(`${API_BASE}/get_feedback.php?role=faculty&faculty_id=${currentUser.id}`);
         const feedbackData = await feedbackRes.json();
         
         if (feedbackData.status === 'success') {
@@ -1500,7 +1508,7 @@
         }
 
         // Fetch complaints
-        const complaintsRes = await fetch(`http://localhost/backend/get_complaints.php?role=hod&faculty_id=${currentUser.id}`);
+        const complaintsRes = await fetch(`${API_BASE}/get_complaints.php?role=hod&faculty_id=${currentUser.id}`);
         const complaintsData = await complaintsRes.json();
         
         if (complaintsData.status === 'success') {3
@@ -1558,7 +1566,7 @@
     // HOD Dashboard
     async function loadHODDashboard() {
       try {
-        const feedbackRes = await fetch('http://localhost/backend/get_feedback.php?role=hod');
+        const feedbackRes = await fetch(`${API_BASE}/get_feedback.php?role=hod`);
         const feedbackData = await feedbackRes.json();
         
         if (feedbackData.status === 'success') {
@@ -1578,7 +1586,7 @@
           populateFacultyTable(feedbacks);
         }
 
-        const complaintsRes = await fetch('http://localhost/backend/get_complaints.php?role=hod');
+        const complaintsRes = await fetch(`${API_BASE}/get_complaints.php?role=hod`);
         const complaintsData = await complaintsRes.json();
         
         if (complaintsData.status === 'success') {
